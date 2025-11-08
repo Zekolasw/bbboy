@@ -8,6 +8,10 @@ import threading
 import sqlite3
 import os
 import time
+import os
+# تعطيل البروكسي
+os.environ['NO_PROXY'] = '*'
+os.environ['no_proxy'] = '*'
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -2428,25 +2432,25 @@ import sys
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def create_retry_session():
-    """إنشاء جلسة متوازنة بين السرعة والموثوقية"""
+    """إنشاء جلسة مبسطة وسريعة"""
     session = requests.Session()
-
-    # إستراتيجية متوازنة - محاولتان مع مهلة معقولة
+    
+    # إعدادات بسيطة وسريعة
     retry_strategy = Retry(
-        total=2,  # ✅ محاولتان بدلاً من 1 أو 3
-        status_forcelist=[500, 502, 503, 504],  # ✅ إعادة المحاولة لأخطاء السيرفر فقط
+        total=1,
+        status_forcelist=[502, 503, 504],
         allowed_methods=["GET", "POST"],
-        backoff_factor=0.5  # ✅ انتظار قصير بين المحاولات
+        backoff_factor=0.1
     )
-
+    
     adapter = HTTPAdapter(
-        max_retries=retry_strategy,
-        pool_connections=20,
-        pool_maxsize=20
+        max_retries=retry_strategy, 
+        pool_connections=10,
+        pool_maxsize=10
     )
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-
+    
     return session
 
 def test_telegram_connection():
